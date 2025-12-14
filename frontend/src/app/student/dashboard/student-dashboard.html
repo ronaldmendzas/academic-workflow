@@ -1,0 +1,52 @@
+<div class="student-dashboard">
+  <div class="welcome">
+    <h1>Student Portal</h1>
+    <p class="text-muted">Manage your academic enrollment</p>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading">
+    <a routerLink="/student/enrollments" class="stat-card">
+      <div class="stat-icon enrolled">📚</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.enrolled }}</span>
+        <span class="stat-label">Enrolled Subjects</span>
+      </div>
+    </a>
+
+    <a routerLink="/student/offerings" class="stat-card">
+      <div class="stat-icon available">📋</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.available }}</span>
+        <span class="stat-label">Available to Enroll</span>
+      </div>
+    </a>
+
+    <a routerLink="/student/schedule" class="stat-card">
+      <div class="stat-icon schedule">📅</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.schedule }}</span>
+        <span class="stat-label">Classes per Week</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading your data...</div>
+
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <a routerLink="/student/offerings" class="action-card">
+        <span class="action-icon">➕</span>
+        <span class="action-text">Enroll in Subjects</span>
+      </a>
+      <a routerLink="/student/schedule" class="action-card">
+        <span class="action-icon">🗓️</span>
+        <span class="action-text">View My Schedule</span>
+      </a>
+      <a routerLink="/student/enrollments" class="action-card">
+        <span class="action-icon">📖</span>
+        <span class="action-text">My Enrollments</span>
+      </a>
+    </div>
+  </div>
+</div>

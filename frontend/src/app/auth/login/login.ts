@@ -22,7 +22,7 @@ export class Login {
     private router: Router
   ) {
     if (this.authService.currentUserValue) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/dashboard']);
     }
 
     this.loginForm = this.fb.group({
@@ -39,7 +39,7 @@ export class Login {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        this.router.navigate(['/dashboard']);
       },
       error: error => {
         this.error = error.error?.message || 'Login failed';

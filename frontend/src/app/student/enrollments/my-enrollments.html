@@ -1,0 +1,61 @@
+<div class="enrollments-page">
+  <div class="page-header">
+    <div>
+      <h1>My Enrollments</h1>
+      <p class="text-muted">Subjects you are currently enrolled in</p>
+    </div>
+    <a routerLink="/student/offerings" class="btn btn-primary">+ Enroll in More</a>
+  </div>
+
+  <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+  <div class="loading" *ngIf="loading">Loading enrollments...</div>
+
+  <div class="enrollments-list" *ngIf="!loading && enrollments.length">
+    <div class="enrollment-card" *ngFor="let e of enrollments">
+      <div class="enrollment-main">
+        <div class="subject-info">
+          <span class="subject-code">{{ e.academicOffering?.subject?.code }}</span>
+          <h3>{{ e.academicOffering?.subject?.name }}</h3>
+        </div>
+
+        <div class="enrollment-meta">
+          <div class="meta-item">
+            <span class="label">Teacher</span>
+            <span>{{ e.academicOffering?.teacher?.user?.username || '-' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Classroom</span>
+            <span>{{ e.academicOffering?.classroom?.code }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Schedule</span>
+            <span class="schedule">{{ formatSchedule(e.academicOffering?.schedule) }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">Enrolled</span>
+            <span>{{ formatDate(e.enrolled_at) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="enrollment-actions">
+        <span class="status-badge" [class]="'status-' + e.status">{{ e.status }}</span>
+        <button 
+          class="btn btn-danger btn-sm"
+          [disabled]="unenrolling === e.id"
+          (click)="unenroll(e)">
+          {{ unenrolling === e.id ? 'Removing...' : 'Unenroll' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" *ngIf="!loading && !enrollments.length">
+    <div class="empty-icon">📚</div>
+    <h3>No Enrollments Yet</h3>
+    <p>You haven't enrolled in any subjects</p>
+    <a routerLink="/student/offerings" class="btn btn-primary">Browse Available Offerings</a>
+  </div>
+</div>

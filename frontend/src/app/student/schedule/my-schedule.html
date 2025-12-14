@@ -1,0 +1,40 @@
+<div class="schedule-page">
+  <div class="page-header">
+    <div>
+      <h1>My Schedule</h1>
+      <p class="text-muted">Your weekly class schedule</p>
+    </div>
+    <a routerLink="/student/enrollments" class="btn btn-secondary">View Enrollments</a>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+  <div class="loading" *ngIf="loading">Loading schedule...</div>
+
+  <div class="schedule-grid" *ngIf="!loading && hasSchedule()">
+    <div class="day-column" *ngFor="let day of weekDays">
+      <div class="day-header">{{ dayLabels[day] }}</div>
+      <div class="day-slots">
+        <div class="slot-card" *ngFor="let slot of getSlotsForDay(day)">
+          <div class="slot-time">{{ slot.start_time }} - {{ slot.end_time }}</div>
+          <div class="slot-subject">{{ slot.subject }}</div>
+          <div class="slot-code">{{ slot.subject_code }}</div>
+          <div class="slot-details">
+            <span>📍 {{ slot.classroom }}</span>
+            <span>👨‍🏫 {{ slot.teacher }}</span>
+          </div>
+        </div>
+        <div class="empty-day" *ngIf="!getSlotsForDay(day).length">
+          <span>No classes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" *ngIf="!loading && !hasSchedule()">
+    <div class="empty-icon">📅</div>
+    <h3>No Schedule Yet</h3>
+    <p>Enroll in subjects to see your schedule here</p>
+    <a routerLink="/student/offerings" class="btn btn-primary">Browse Offerings</a>
+  </div>
+</div>

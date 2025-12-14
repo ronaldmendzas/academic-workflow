@@ -84,4 +84,8 @@ export class AuthService {
   isAuthenticated(): boolean {
     return !!this.token;
   }
+
+  isLoggedIn(): boolean {
+    return !!this.token && !!this.currentUserValue;
+  }
 }

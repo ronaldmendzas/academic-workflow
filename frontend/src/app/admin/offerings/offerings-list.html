@@ -1,0 +1,77 @@
+<div class="admin-page">
+  <div class="page-header">
+    <div><h1>Academic Offerings</h1><p class="text-muted">Manage course sections with schedules</p></div>
+    <button class="btn btn-primary" (click)="openCreate()">+ Add Offering</button>
+  </div>
+
+  <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+  <div class="alert alert-danger" *ngIf="error && !showModal">{{ error }}</div>
+
+  <div class="card">
+    <div class="loading" *ngIf="loading">Loading...</div>
+    <table class="table" *ngIf="!loading && offerings.length">
+      <thead>
+        <tr><th>Subject</th><th>Teacher</th><th>Classroom</th><th>Schedule</th><th>Quota</th><th>Period</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let o of offerings">
+          <td><code>{{ o.subject?.code }}</code> {{ o.subject?.name }}</td>
+          <td>{{ o.teacher?.code }}</td>
+          <td>{{ o.classroom?.code }}</td>
+          <td class="schedule-cell">{{ formatSchedule(o.schedule) }}</td>
+          <td>{{ o.enrollments_count || 0 }} / {{ o.max_quota }}</td>
+          <td>{{ o.semester_year }}</td>
+          <td><span class="badge" [class.badge-success]="o.status === 'active'" [class.badge-muted]="o.status !== 'active'">{{ o.status }}</span></td>
+          <td class="actions">
+            <button class="btn btn-sm btn-ghost" (click)="openEdit(o)">Edit</button>
+            <button class="btn btn-sm btn-ghost btn-danger" (click)="delete(o)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="empty" *ngIf="!loading && !offerings.length"><p>No offerings found</p><button class="btn btn-primary" (click)="openCreate()">Add your first offering</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h2>{{ editing ? 'Edit' : 'New' }} Offering</h2><button class="btn-close" (click)="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+      <div class="form-row">
+        <div class="form-group"><label>Subject *</label><select [(ngModel)]="form.subject_id" required><option [ngValue]="null">Select subject...</option><option *ngFor="let s of subjects" [ngValue]="s.id">{{ s.code }} - {{ s.name }}</option></select></div>
+        <div class="form-group"><label>Semester Year *</label><input type="text" [(ngModel)]="form.semester_year" placeholder="e.g. 2025-1" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Teacher *</label><select [(ngModel)]="form.teacher_id" required><option [ngValue]="null">Select teacher...</option><option *ngFor="let t of teachers" [ngValue]="t.id">{{ t.code }} - {{ t.department }}</option></select></div>
+        <div class="form-group"><label>Classroom *</label><select [(ngModel)]="form.classroom_id" required><option [ngValue]="null">Select classroom...</option><option *ngFor="let c of classrooms" [ngValue]="c.id">{{ c.code }} - {{ c.building }}</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Max Quota</label><input type="number" [(ngModel)]="form.max_quota" min="1"></div>
+        <div class="form-group"><label>Status</label><select [(ngModel)]="form.status"><option value="active">Active</option><option value="full">Full</option><option value="cancelled">Cancelled</option></select></div>
+      </div>
+      <div class="form-group">
+        <label>Schedule *</label>
+        <div class="schedule-builder">
+          <div class="schedule-add">
+            <select [(ngModel)]="newSchedule.day"><option *ngFor="let d of days" [value]="d">{{ d | titlecase }}</option></select>
+            <input type="time" [(ngModel)]="newSchedule.start_time">
+            <span>to</span>
+            <input type="time" [(ngModel)]="newSchedule.end_time">
+            <button class="btn btn-sm btn-ghost" (click)="addSchedule()">+ Add</button>
+          </div>
+          <div class="schedule-list" *ngIf="form.schedule.length">
+            <div class="schedule-item" *ngFor="let s of form.schedule; let i = index">
+              <span>{{ s.day | titlecase }} {{ s.start_time }} - {{ s.end_time }}</span>
+              <button class="btn-close-sm" (click)="removeSchedule(i)">×</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="save()">{{ editing ? 'Update' : 'Create' }}</button>
+    </div>
+  </div>
+</div>
