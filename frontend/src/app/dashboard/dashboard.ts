@@ -39,7 +39,7 @@ export class Dashboard implements OnInit {
     }
 
     if (role === 'teacher') {
-      this.loading = false;
+      this.router.navigate(['/teacher/dashboard']);
       return;
     }
 

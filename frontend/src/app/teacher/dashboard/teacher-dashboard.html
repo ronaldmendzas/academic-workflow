@@ -1,0 +1,48 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <h1>Teacher Dashboard</h1>
+    <p class="text-muted">Welcome back! Here's your overview</p>
+  </div>
+
+  <div class="stats-grid" *ngIf="!loading">
+    <a routerLink="/teacher/offerings" class="stat-card">
+      <div class="stat-icon blue">📚</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.total_offerings }}</span>
+        <span class="stat-label">My Courses</span>
+      </div>
+    </a>
+
+    <a routerLink="/teacher/offerings" class="stat-card">
+      <div class="stat-icon green">👥</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.total_students }}</span>
+        <span class="stat-label">Total Students</span>
+      </div>
+    </a>
+
+    <a routerLink="/teacher/offerings" class="stat-card">
+      <div class="stat-icon orange">📝</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ stats.pending_grades }}</span>
+        <span class="stat-label">Pending Grades</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading dashboard...</div>
+
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <a routerLink="/teacher/offerings" class="action-card">
+        <span class="action-icon">📖</span>
+        <span>View My Courses</span>
+      </a>
+      <a routerLink="/teacher/offerings" class="action-card">
+        <span class="action-icon">✏️</span>
+        <span>Enter Grades</span>
+      </a>
+    </div>
+  </div>
+</div>

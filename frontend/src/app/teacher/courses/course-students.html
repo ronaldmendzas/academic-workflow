@@ -1,0 +1,58 @@
+<div class="students-page">
+  <div class="page-header">
+    <div>
+      <a routerLink="/teacher/offerings" class="back-link">← Back to Courses</a>
+      <h1>{{ offering?.subject?.name }}</h1>
+      <p class="text-muted">{{ offering?.subject?.code }} • {{ students.length }} students enrolled</p>
+    </div>
+  </div>
+
+  <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+  <div class="loading" *ngIf="loading">Loading students...</div>
+
+  <div class="grades-table-wrapper" *ngIf="!loading && students.length">
+    <table class="grades-table">
+      <thead>
+        <tr>
+          <th class="col-code">Code</th>
+          <th class="col-name">Student Name</th>
+          <th *ngFor="let gt of gradeTypes" class="col-grade">{{ gradeLabels[gt] }}</th>
+          <th class="col-avg">Avg</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of students">
+          <td class="col-code">{{ s.student_code }}</td>
+          <td class="col-name">{{ s.student_name }}</td>
+          <td *ngFor="let gt of gradeTypes" class="col-grade">
+            <div class="grade-cell" *ngIf="!isEditing(s.enrollment_id, gt)" 
+                 [class]="getGradeClass(getGradeValue(s.grades, gt))"
+                 (click)="startEdit(s, gt)">
+              {{ getGradeValue(s.grades, gt) !== null ? getGradeValue(s.grades, gt) : '-' }}
+            </div>
+            <div class="grade-edit" *ngIf="isEditing(s.enrollment_id, gt)">
+              <input type="number" [(ngModel)]="editingGrade!.value" min="0" max="100" 
+                     (keyup.enter)="saveGrade()" (keyup.escape)="cancelEdit()">
+              <button class="btn-save" (click)="saveGrade()" [disabled]="saving">✓</button>
+              <button class="btn-cancel" (click)="cancelEdit()">✕</button>
+            </div>
+          </td>
+          <td class="col-avg" [class]="getGradeClass(s.average)">
+            {{ s.average !== null ? s.average : '-' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty" *ngIf="!loading && !students.length">
+    <div class="empty-icon">👥</div>
+    <h3>No Students Enrolled</h3>
+    <p>No students have enrolled in this course yet</p>
+  </div>
+
+  <div class="help-text" *ngIf="!loading && students.length">
+    <p>💡 Click on any grade cell to edit. Press Enter to save, Escape to cancel.</p>
+  </div>
+</div>
