@@ -1,0 +1,166 @@
+<div class="audit-container">
+  <header class="audit-header">
+    <h1>Registro de Auditoría</h1>
+    <span class="total-badge">{{ pagination().total }} registros</span>
+  </header>
+
+  <div class="filters-panel">
+    <div class="filter-group">
+      <label>Acción</label>
+      <select [value]="filters().action" (change)="updateFilter('action', $any($event.target).value)">
+        <option value="">Todas</option>
+        @for (action of actions(); track action) {
+          <option [value]="action">{{ action }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Entidad</label>
+      <select [value]="filters().entity_type" (change)="updateFilter('entity_type', $any($event.target).value)">
+        <option value="">Todas</option>
+        @for (type of entityTypes(); track type) {
+          <option [value]="type">{{ type }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Desde</label>
+      <input 
+        type="date" 
+        [value]="filters().date_from"
+        (change)="updateFilter('date_from', $any($event.target).value)">
+    </div>
+
+    <div class="filter-group">
+      <label>Hasta</label>
+      <input 
+        type="date" 
+        [value]="filters().date_to"
+        (change)="updateFilter('date_to', $any($event.target).value)">
+    </div>
+
+    <div class="filter-actions">
+      <button class="btn-primary" (click)="applyFilters()">Filtrar</button>
+      <button class="btn-secondary" (click)="clearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Cargando registros...</div>
+  }
+
+  <div class="table-container">
+    <table class="audit-table">
+      <thead>
+        <tr>
+          <th>Fecha/Hora</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Acción</th>
+          <th>Entidad</th>
+          <th>ID</th>
+          <th>IP</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (log of logs(); track log.id) {
+          <tr>
+            <td>{{ log.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ log.user?.name || 'Sistema' }}</td>
+            <td><span class="role-badge">{{ log.role }}</span></td>
+            <td>
+              <span class="action-badge" [class]="getActionClass(log.action)">
+                {{ log.action }}
+              </span>
+            </td>
+            <td>{{ log.entity_type }}</td>
+            <td>{{ log.entity_id }}</td>
+            <td>{{ log.ip_address }}</td>
+            <td>
+              <button class="btn-icon" (click)="viewDetails(log)" title="Ver detalles">
+                👁
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="empty">No hay registros de auditoría</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (pagination().last_page > 1) {
+    <div class="pagination">
+      <button 
+        [disabled]="pagination().current_page === 1"
+        (click)="goToPage(pagination().current_page - 1)">
+        ← Anterior
+      </button>
+      <span class="page-info">
+        Página {{ pagination().current_page }} de {{ pagination().last_page }}
+      </span>
+      <button 
+        [disabled]="pagination().current_page === pagination().last_page"
+        (click)="goToPage(pagination().current_page + 1)">
+        Siguiente →
+      </button>
+    </div>
+  }
+</div>
+
+@if (selectedLog()) {
+  <div class="modal-overlay" (click)="closeDetails()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h2>Detalle de Registro</h2>
+        <button class="btn-close" (click)="closeDetails()">×</button>
+      </header>
+
+      <div class="modal-body">
+        <div class="detail-row">
+          <label>ID:</label>
+          <span>{{ selectedLog()!.id }}</span>
+        </div>
+        <div class="detail-row">
+          <label>Fecha:</label>
+          <span>{{ selectedLog()!.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+        </div>
+        <div class="detail-row">
+          <label>Usuario:</label>
+          <span>{{ selectedLog()!.user?.name }} ({{ selectedLog()!.user?.email }})</span>
+        </div>
+        <div class="detail-row">
+          <label>Rol:</label>
+          <span>{{ selectedLog()!.role }}</span>
+        </div>
+        <div class="detail-row">
+          <label>Acción:</label>
+          <span>{{ selectedLog()!.action }}</span>
+        </div>
+        <div class="detail-row">
+          <label>Entidad:</label>
+          <span>{{ selectedLog()!.entity_type }} #{{ selectedLog()!.entity_id }}</span>
+        </div>
+        <div class="detail-row">
+          <label>IP:</label>
+          <span>{{ selectedLog()!.ip_address }}</span>
+        </div>
+
+        <div class="json-section">
+          <h4>Valor Anterior</h4>
+          <pre>{{ formatJson(selectedLog()!.old_value) }}</pre>
+        </div>
+
+        <div class="json-section">
+          <h4>Valor Nuevo</h4>
+          <pre>{{ formatJson(selectedLog()!.new_value) }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+}

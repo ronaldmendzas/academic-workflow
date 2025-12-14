@@ -1,0 +1,190 @@
+<div class="reports-container">
+  <header class="reports-header">
+    <h1>Reportes y Estadísticas</h1>
+  </header>
+
+  <nav class="tabs">
+    <button 
+      [class.active]="activeTab() === 'overview'" 
+      (click)="setTab('overview')">
+      Resumen General
+    </button>
+    <button 
+      [class.active]="activeTab() === 'subjects'" 
+      (click)="setTab('subjects')">
+      Por Materia
+    </button>
+    <button 
+      [class.active]="activeTab() === 'grades'" 
+      (click)="setTab('grades')">
+      Calificaciones
+    </button>
+    <button 
+      [class.active]="activeTab() === 'teachers'" 
+      (click)="setTab('teachers')">
+      Carga Docente
+    </button>
+  </nav>
+
+  @if (loading()) {
+    <div class="loading">Cargando datos...</div>
+  }
+
+  @if (activeTab() === 'overview' && stats()) {
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-value">{{ stats()!.total_students }}</div>
+        <div class="stat-label">Estudiantes</div>
+      </div>
+      <div class="stat-card secondary">
+        <div class="stat-value">{{ stats()!.total_teachers }}</div>
+        <div class="stat-label">Docentes</div>
+      </div>
+      <div class="stat-card tertiary">
+        <div class="stat-value">{{ stats()!.total_subjects }}</div>
+        <div class="stat-label">Materias</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-value">{{ stats()!.active_period }}</div>
+        <div class="stat-label">Período Activo</div>
+      </div>
+    </div>
+
+    <div class="enrollment-stats">
+      <h3>Estado de Inscripciones</h3>
+      <div class="enrollment-grid">
+        <div class="enrollment-card pending">
+          <span class="count">{{ stats()!.pending_enrollments }}</span>
+          <span class="label">Pendientes</span>
+        </div>
+        <div class="enrollment-card approved">
+          <span class="count">{{ stats()!.approved_enrollments }}</span>
+          <span class="label">Aprobadas</span>
+        </div>
+        <div class="enrollment-card rejected">
+          <span class="count">{{ stats()!.rejected_enrollments }}</span>
+          <span class="label">Rechazadas</span>
+        </div>
+        <div class="enrollment-card total">
+          <span class="count">{{ stats()!.period_enrollments }}</span>
+          <span class="label">Total Período</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'subjects') {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Materia</th>
+            <th>Docente</th>
+            <th>Aula</th>
+            <th>Horario</th>
+            <th>Cupo</th>
+            <th>Inscritos</th>
+            <th>Disponibles</th>
+            <th>Ocupación</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of subjectEnrollments(); track item.offering_id) {
+            <tr>
+              <td>{{ item.subject }}</td>
+              <td>{{ item.teacher }}</td>
+              <td>{{ item.classroom }}</td>
+              <td>{{ item.schedule }}</td>
+              <td>{{ item.quota }}</td>
+              <td>{{ item.enrolled }}</td>
+              <td>{{ item.available }}</td>
+              <td>
+                <span class="occupancy-badge" [class]="getOccupancyClass(item.enrolled, item.quota)">
+                  {{ ((item.enrolled / item.quota) * 100).toFixed(0) }}%
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="empty">No hay datos disponibles</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (activeTab() === 'grades') {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Materia</th>
+            <th>Período</th>
+            <th>Promedio</th>
+            <th>Mín</th>
+            <th>Máx</th>
+            <th>Total</th>
+            <th>Aprobados</th>
+            <th>Reprobados</th>
+            <th>% Aprobación</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of gradesSummary(); track item.subject + item.period) {
+            <tr>
+              <td>{{ item.subject }}</td>
+              <td>{{ item.period }}</td>
+              <td>{{ item.average }}</td>
+              <td>{{ item.min }}</td>
+              <td>{{ item.max }}</td>
+              <td>{{ item.total }}</td>
+              <td class="passed">{{ item.passed }}</td>
+              <td class="failed">{{ item.failed }}</td>
+              <td>
+                <span class="rate-badge" [class]="getPassRateClass(item.pass_rate)">
+                  {{ item.pass_rate }}%
+                </span>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="empty">No hay calificaciones registradas</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (activeTab() === 'teachers') {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Docente</th>
+            <th>Email</th>
+            <th>Departamento</th>
+            <th>Materias Asignadas</th>
+            <th>Total Estudiantes</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of teacherWorkload(); track item.teacher_id) {
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.email }}</td>
+              <td>{{ item.department || 'Sin asignar' }}</td>
+              <td>{{ item.offerings }}</td>
+              <td>{{ item.total_students }}</td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty">No hay docentes registrados</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

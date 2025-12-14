@@ -64,6 +64,18 @@ export const routes: Routes = [
                 canActivate: [RoleGuard],
                 data: { role: 'administrator' }
             },
+            {
+                path: 'admin/reports',
+                loadComponent: () => import('./admin/reports/reports-dashboard').then(m => m.ReportsDashboard),
+                canActivate: [RoleGuard],
+                data: { role: 'administrator' }
+            },
+            {
+                path: 'admin/audit',
+                loadComponent: () => import('./admin/audit/audit-viewer').then(m => m.AuditViewer),
+                canActivate: [RoleGuard],
+                data: { role: 'administrator' }
+            },
             // Student routes
             {
                 path: 'student',
