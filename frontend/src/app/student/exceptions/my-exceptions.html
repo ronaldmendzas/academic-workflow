@@ -1,0 +1,121 @@
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Exception Requests</h1>
+      <p class="text-neutral-400 mt-1">Request special permissions for enrollment</p>
+    </div>
+    <button (click)="toggleForm()" 
+            class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+      {{ showForm ? 'Cancel' : 'New Request' }}
+    </button>
+  </div>
+
+  @if (success) {
+    <div class="p-4 bg-green-500/20 border border-green-500/30 rounded-lg text-green-400">
+      {{ success }}
+    </div>
+  }
+
+  @if (showForm) {
+    <div class="bg-neutral-800 rounded-xl p-6 border border-neutral-700">
+      <h2 class="text-lg font-semibold text-white mb-4">New Exception Request</h2>
+      
+      @if (error) {
+        <div class="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
+          {{ error }}
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-neutral-300 mb-2">Exception Type</label>
+          <select formControlName="type"
+                  class="w-full px-4 py-3 bg-neutral-900 border border-neutral-600 rounded-lg text-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+            @for (type of exceptionTypes; track type.value) {
+              <option [value]="type.value">{{ type.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-neutral-300 mb-2">Reason (min 20 characters)</label>
+          <textarea formControlName="reason" rows="4"
+                    placeholder="Explain why you need this exception..."
+                    class="w-full px-4 py-3 bg-neutral-900 border border-neutral-600 rounded-lg text-white placeholder-neutral-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"></textarea>
+          @if (form.get('reason')?.touched && form.get('reason')?.errors) {
+            <p class="mt-1 text-sm text-red-400">
+              @if (form.get('reason')?.errors?.['required']) {
+                Reason is required
+              } @else if (form.get('reason')?.errors?.['minlength']) {
+                Reason must be at least 20 characters
+              }
+            </p>
+          }
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button type="button" (click)="toggleForm()"
+                  class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="form.invalid || submitting"
+                  class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors">
+            {{ submitting ? 'Submitting...' : 'Submit Request' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+    </div>
+  } @else if (requests.length === 0) {
+    <div class="bg-neutral-800 rounded-xl p-12 text-center border border-neutral-700">
+      <div class="text-neutral-400 mb-4">
+        <svg class="w-16 h-16 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+      </div>
+      <p class="text-neutral-400">No exception requests yet</p>
+      <button (click)="toggleForm()" class="mt-4 text-indigo-400 hover:text-indigo-300">
+        Submit your first request
+      </button>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      @for (request of requests; track request.id) {
+        <div class="bg-neutral-800 rounded-xl p-6 border border-neutral-700">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <span class="text-sm text-neutral-400">{{ getTypeLabel(request.type) }}</span>
+              <div class="flex items-center gap-3 mt-1">
+                <span [class]="'px-2 py-1 rounded text-xs font-medium ' + getStatusClass(request.status)">
+                  {{ request.status | titlecase }}
+                </span>
+                <span class="text-xs text-neutral-500">
+                  {{ request.created_at | date:'medium' }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <p class="text-neutral-300 mb-4">{{ request.reason }}</p>
+          
+          @if (request.admin_notes) {
+            <div class="mt-4 p-3 bg-neutral-900 rounded-lg border border-neutral-700">
+              <p class="text-xs text-neutral-400 mb-1">Admin Response:</p>
+              <p class="text-sm text-neutral-300">{{ request.admin_notes }}</p>
+              @if (request.reviewer) {
+                <p class="text-xs text-neutral-500 mt-2">
+                  Reviewed by {{ request.reviewer.username }} on {{ request.reviewed_at | date:'medium' }}
+                </p>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

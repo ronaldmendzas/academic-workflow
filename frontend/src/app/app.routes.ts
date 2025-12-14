@@ -58,6 +58,12 @@ export const routes: Routes = [
                 canActivate: [RoleGuard],
                 data: { role: 'administrator' }
             },
+            {
+                path: 'admin/exceptions',
+                loadComponent: () => import('./admin/exceptions/exceptions-list').then(m => m.ExceptionsList),
+                canActivate: [RoleGuard],
+                data: { role: 'administrator' }
+            },
             // Student routes
             {
                 path: 'student',
@@ -85,6 +91,12 @@ export const routes: Routes = [
             {
                 path: 'student/schedule',
                 loadComponent: () => import('./student/schedule/my-schedule').then(m => m.MySchedule),
+                canActivate: [RoleGuard],
+                data: { role: 'student' }
+            },
+            {
+                path: 'student/exceptions',
+                loadComponent: () => import('./student/exceptions/my-exceptions').then(m => m.MyExceptions),
                 canActivate: [RoleGuard],
                 data: { role: 'student' }
             },
