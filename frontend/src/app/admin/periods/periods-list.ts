@@ -16,7 +16,7 @@ export class PeriodsList implements OnInit {
   showModal = false;
   editing = false;
   
-  form: any = { name: '', start_date: '', end_date: '', semester_year: '', status: 'upcoming' };
+  form: any = { name: '', start_date: '', end_date: '', semester_year: '', status: 'planned' };
   selectedId: number | null = null;
   error = '';
   success = '';
@@ -37,7 +37,7 @@ export class PeriodsList implements OnInit {
     this.editing = false;
     this.selectedId = null;
     const now = new Date();
-    this.form = { name: '', start_date: '', end_date: '', semester_year: `${now.getFullYear()}-${now.getMonth() < 6 ? 1 : 2}`, status: 'upcoming' };
+    this.form = { name: '', start_date: '', end_date: '', semester_year: `${now.getFullYear()}-${now.getMonth() < 6 ? 1 : 2}`, status: 'planned' };
     this.showModal = true;
   }
 
@@ -84,7 +84,7 @@ export class PeriodsList implements OnInit {
   getStatusClass(status: string): string {
     switch(status) {
       case 'active': return 'badge-success';
-      case 'upcoming': return 'badge-warning';
+      case 'planned': return 'badge-warning';
       case 'closed': return 'badge-muted';
       default: return 'badge-muted';
     }
