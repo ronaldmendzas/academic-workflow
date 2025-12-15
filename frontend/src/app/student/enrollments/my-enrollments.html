@@ -16,37 +16,37 @@
     <div class="enrollment-card" *ngFor="let e of enrollments">
       <div class="enrollment-main">
         <div class="subject-info">
-          <span class="subject-code">{{ e.academicOffering?.subject?.code }}</span>
-          <h3>{{ e.academicOffering?.subject?.name }}</h3>
+          <span class="subject-code">{{ e.academic_offering?.subject?.code }}</span>
+          <h3>{{ e.academic_offering?.subject?.name }}</h3>
         </div>
 
         <div class="enrollment-meta">
           <div class="meta-item">
-            <span class="label">Teacher</span>
-            <span>{{ e.academicOffering?.teacher?.user?.username || '-' }}</span>
+            <span class="label">Docente</span>
+            <span>{{ e.academic_offering?.teacher?.user?.username || '-' }}</span>
           </div>
           <div class="meta-item">
-            <span class="label">Classroom</span>
-            <span>{{ e.academicOffering?.classroom?.code }}</span>
+            <span class="label">Aula</span>
+            <span>{{ e.academic_offering?.classroom?.code }} ({{ e.academic_offering?.classroom?.building }})</span>
           </div>
           <div class="meta-item">
-            <span class="label">Schedule</span>
-            <span class="schedule">{{ formatSchedule(e.academicOffering?.schedule) }}</span>
+            <span class="label">Horario</span>
+            <span class="schedule">{{ formatSchedule(e.academic_offering?.schedule) }}</span>
           </div>
           <div class="meta-item">
-            <span class="label">Enrolled</span>
+            <span class="label">Inscrito</span>
             <span>{{ formatDate(e.enrolled_at) }}</span>
           </div>
         </div>
       </div>
 
       <div class="enrollment-actions">
-        <span class="status-badge" [class]="'status-' + e.status">{{ e.status }}</span>
+        <span class="status-badge" [class]="'status-' + e.status">{{ e.status === 'enrolled' ? 'INSCRITO' : e.status }}</span>
         <button 
           class="btn btn-danger btn-sm"
           [disabled]="unenrolling === e.id"
           (click)="unenroll(e)">
-          {{ unenrolling === e.id ? 'Removing...' : 'Unenroll' }}
+          {{ unenrolling === e.id ? 'Retirando...' : 'Retirar' }}
         </button>
       </div>
     </div>

@@ -1,18 +1,62 @@
 <div class="catalog-page">
   <div class="page-header">
     <div>
-      <h1>Available Offerings</h1>
-      <p class="text-muted">Browse and enroll in available subjects</p>
+      <h1>Ofertas Disponibles</h1>
+      <p class="text-muted">Explora e inscríbete en las materias disponibles</p>
+    </div>
+    <!-- Finalize Enrollment Button -->
+    <button 
+      class="btn btn-finalize"
+      *ngIf="enrollmentPeriodOpen && !enrollmentFinalized"
+      [disabled]="finalizing"
+      (click)="finalizeEnrollment()">
+      {{ finalizing ? 'Finalizando...' : '🔒 Finalizar Inscripción' }}
+    </button>
+  </div>
+
+  <!-- Enrollment Finalized Banner -->
+  <div class="finalized-banner" *ngIf="enrollmentFinalized">
+    <span class="finalized-icon">🔒</span>
+    <div class="finalized-info">
+      <strong>Inscripción FINALIZADA</strong>
+      <span class="finalized-date" *ngIf="enrollmentFinalizedAt">
+        Finalizada el {{ formatDateTime(enrollmentFinalizedAt) }}
+      </span>
+      <span class="finalized-note">Ya no puedes modificar tu inscripción</span>
+    </div>
+  </div>
+
+  <!-- Enrollment Period Status Banner -->
+  <div class="period-banner" [class.open]="enrollmentPeriodOpen && !enrollmentFinalized" [class.closed]="!enrollmentPeriodOpen || enrollmentFinalized" *ngIf="!enrollmentFinalized">
+    <div class="period-status">
+      <span class="status-icon">{{ enrollmentPeriodOpen ? '✓' : '✗' }}</span>
+      <div class="period-info">
+        <strong>{{ enrollmentPeriodOpen ? 'Período de inscripción ABIERTO' : 'Período de inscripción CERRADO' }}</strong>
+        <div class="period-details" *ngIf="period">
+          <span class="period-name">📅 {{ period.name }} ({{ period.semester_year }})</span>
+          <div class="period-dates">
+            <div class="date-item">
+              <span class="date-label">Desde:</span>
+              <span class="date-value">{{ formatDateTime(period.start_date) }}</span>
+            </div>
+            <div class="date-item">
+              <span class="date-label">Hasta:</span>
+              <span class="date-value">{{ formatDateTime(period.end_date) }}</span>
+            </div>
+          </div>
+        </div>
+        <span *ngIf="!period && !enrollmentPeriodOpen" class="no-period">No hay período de inscripción activo actualmente</span>
+      </div>
     </div>
   </div>
 
   <div class="alert alert-success" *ngIf="success">{{ success }}</div>
   <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
 
-  <div class="loading" *ngIf="loading">Loading offerings...</div>
+  <div class="loading" *ngIf="loading">Cargando ofertas...</div>
 
   <div class="offerings-grid" *ngIf="!loading">
-    <div class="offering-card" *ngFor="let o of offerings" [class.disabled]="!o.can_enroll">
+    <div class="offering-card" *ngFor="let o of offerings" [class.disabled]="!o.can_enroll || !canModifyEnrollment">
       <div class="offering-header">
         <span class="subject-code">{{ o.subject?.code }}</span>
         <span class="quota-badge" [class.full]="o.available_quota === 0">
@@ -24,21 +68,21 @@
 
       <div class="offering-details">
         <div class="detail-row">
-          <span class="label">Teacher:</span>
+          <span class="label">Docente:</span>
           <span>{{ o.teacher?.user?.username || '-' }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">Classroom:</span>
+          <span class="label">Aula:</span>
           <span>{{ o.classroom?.code }} ({{ o.classroom?.building }})</span>
         </div>
         <div class="detail-row">
-          <span class="label">Schedule:</span>
+          <span class="label">Horario:</span>
           <span class="schedule">{{ formatSchedule(o.schedule) }}</span>
         </div>
         <div class="detail-row">
-          <span class="label">Available:</span>
+          <span class="label">Disponibles:</span>
           <span [class.text-success]="o.available_quota > 0" [class.text-danger]="o.available_quota === 0">
-            {{ o.available_quota }} spots
+            {{ o.available_quota }} plazas
           </span>
         </div>
       </div>
@@ -49,14 +93,18 @@
 
       <button 
         class="btn btn-primary btn-block" 
-        [disabled]="!o.can_enroll || enrolling === o.id"
+        [disabled]="!o.can_enroll || !canModifyEnrollment || enrolling === o.id"
         (click)="enroll(o)">
-        {{ enrolling === o.id ? 'Enrolling...' : (o.can_enroll ? 'Enroll' : 'Not Available') }}
+        <ng-container *ngIf="enrollmentFinalized">Inscripción finalizada</ng-container>
+        <ng-container *ngIf="!enrollmentFinalized && !enrollmentPeriodOpen">Período cerrado</ng-container>
+        <ng-container *ngIf="canModifyEnrollment">
+          {{ enrolling === o.id ? 'Inscribiendo...' : (o.can_enroll ? 'Inscribirse' : 'No disponible') }}
+        </ng-container>
       </button>
     </div>
   </div>
 
   <div class="empty" *ngIf="!loading && !offerings.length">
-    <p>No offerings available at this time</p>
+    <p>No hay ofertas disponibles en este momento</p>
   </div>
 </div>

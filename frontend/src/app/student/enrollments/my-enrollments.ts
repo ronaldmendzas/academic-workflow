@@ -26,7 +26,12 @@ export class MyEnrollments implements OnInit {
   load() {
     this.loading = true;
     this.api.getMyEnrollments().subscribe({
-      next: (res) => { this.enrollments = res.data || []; this.loading = false; },
+      next: (res) => { 
+        console.log('Enrollments response:', res);
+        console.log('First enrollment:', res.data?.[0]);
+        this.enrollments = res.data || []; 
+        this.loading = false; 
+      },
       error: () => { this.loading = false; this.error = 'Error loading enrollments'; }
     });
   }
@@ -54,7 +59,7 @@ export class MyEnrollments implements OnInit {
 
   formatSchedule(schedule: any[]): string {
     if (!schedule?.length) return '-';
-    return schedule.map(s => `${s.day.substring(0, 3).toUpperCase()} ${s.start_time}-${s.end_time}`).join(', ');
+    return schedule.map(s => `${s.day?.substring(0, 3).toUpperCase() || ''} ${s.start_time || s.start || ''}-${s.end_time || s.end || ''}`).join(', ');
   }
 
   formatDate(dateStr: string): string {

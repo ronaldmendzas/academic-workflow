@@ -2,6 +2,192 @@
   animation: fadeIn 0.3s ease;
 }
 
+/* Page Header with Finalize Button */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.btn-finalize {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-finalize:hover:not(:disabled) {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-finalize:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Finalized Banner */
+.finalized-banner {
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.finalized-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.finalized-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.finalized-info strong {
+  color: #a78bfa;
+  font-size: 1rem;
+}
+
+.finalized-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.finalized-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Period Banner */
+.period-banner {
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.period-banner.open {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.period-banner.closed {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.period-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.period-banner.open .status-icon {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.period-banner.closed .status-icon {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.period-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.period-info strong {
+  font-size: 1.1rem;
+}
+
+.period-banner.open .period-info strong {
+  color: #22c55e;
+}
+
+.period-banner.closed .period-info strong {
+  color: #ef4444;
+}
+
+.period-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.period-name {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.period-dates {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.date-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.date-value {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.no-period {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .loading, .empty {
   text-align: center;
   padding: 3rem;

@@ -44,7 +44,13 @@
         <div class="form-group"><label>Email *</label><input type="email" [(ngModel)]="form.email" required></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Department *</label><input type="text" [(ngModel)]="form.department" required></div>
+        <div class="form-group">
+          <label>Departamento *</label>
+          <select [(ngModel)]="form.department" required>
+            <option value="" disabled>Seleccionar departamento</option>
+            <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+          </select>
+        </div>
         <div class="form-group"><label>Password {{ editing ? '' : '*' }}</label><input type="password" [(ngModel)]="form.password" [required]="!editing"></div>
       </div>
       <div class="form-row">

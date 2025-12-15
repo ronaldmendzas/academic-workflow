@@ -15,6 +15,23 @@ export class TeachersList implements OnInit {
   loading = true;
   showModal = false;
   editing = false;
+
+  departments = [
+    'Ingeniería de Sistemas',
+    'Ingeniería Industrial',
+    'Ingeniería Civil',
+    'Ingeniería Electrónica',
+    'Matemáticas',
+    'Física',
+    'Química',
+    'Biología',
+    'Economía',
+    'Administración de Empresas',
+    'Contaduría Pública',
+    'Derecho',
+    'Medicina',
+    'Ciencias de la Comunicación'
+  ];
   
   form: any = { code: '', department: '', max_students_total: 100, status: 'active', email: '', username: '', password: '' };
   selectedId: number | null = null;

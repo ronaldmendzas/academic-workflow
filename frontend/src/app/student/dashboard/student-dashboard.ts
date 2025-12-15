@@ -27,7 +27,12 @@ export class StudentDashboard implements OnInit {
       this.api.getMySchedule().toPromise()
     ]).then(([enrollments, offerings, schedule]) => {
       this.stats.enrolled = enrollments?.data?.length || 0;
-      this.stats.available = offerings?.data?.filter((o: any) => o.can_enroll).length || 0;
+      // Handle new response structure: data.offerings is the array
+      const offeringsData = offerings?.data as any;
+      const offeringsArray = offeringsData?.offerings || offeringsData || [];
+      this.stats.available = Array.isArray(offeringsArray) 
+        ? offeringsArray.filter((o: any) => o.can_enroll).length 
+        : 0;
       this.stats.schedule = schedule?.data?.length || 0;
       this.loading = false;
     }).catch(() => this.loading = false);

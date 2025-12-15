@@ -131,10 +131,46 @@ export const routes: Routes = [
                 data: { role: 'teacher' }
             },
             {
+                path: 'teacher/students',
+                loadComponent: () => import('./teacher/students/all-students').then(m => m.AllStudents),
+                canActivate: [RoleGuard],
+                data: { role: 'teacher' }
+            },
+            {
                 path: 'teacher/courses/:id/students',
                 loadComponent: () => import('./teacher/courses/course-students').then(m => m.CourseStudents),
                 canActivate: [RoleGuard],
                 data: { role: 'teacher' }
+            },
+            {
+                path: 'teacher/grades',
+                loadComponent: () => import('./teacher/grades/grades').then(m => m.TeacherGradesComponent),
+                canActivate: [RoleGuard],
+                data: { role: 'teacher' }
+            },
+            {
+                path: 'teacher/grades/:id',
+                loadComponent: () => import('./teacher/grades/grade-detail').then(m => m.GradeDetailComponent),
+                canActivate: [RoleGuard],
+                data: { role: 'teacher' }
+            },
+            {
+                path: 'admin/grades',
+                loadComponent: () => import('./admin/grades/grade-review').then(m => m.GradeReviewComponent),
+                canActivate: [RoleGuard],
+                data: { role: 'administrator' }
+            },
+            {
+                path: 'admin/grades/review/:id',
+                loadComponent: () => import('./admin/grades/grade-review-detail').then(m => m.GradeReviewDetailComponent),
+                canActivate: [RoleGuard],
+                data: { role: 'administrator' }
+            },
+            {
+                path: 'student/grades',
+                loadComponent: () => import('./student/grades/student-grades').then(m => m.StudentGradesComponent),
+                canActivate: [RoleGuard],
+                data: { role: 'student' }
             }
         ]
     },

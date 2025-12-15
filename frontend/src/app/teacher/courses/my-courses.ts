@@ -29,8 +29,16 @@ export class MyCourses implements OnInit {
     });
   }
 
-  formatSchedule(schedule: any[]): string {
-    if (!schedule?.length) return '-';
-    return schedule.map(s => `${s.day.substring(0, 3).toUpperCase()} ${s.start_time}-${s.end_time}`).join(', ');
+  formatSchedule(schedule: any): string {
+    if (!schedule) return '-';
+    // Handle both array and single object format
+    const items = Array.isArray(schedule) ? schedule : [schedule];
+    if (!items.length) return '-';
+    return items.map(s => {
+      const day = (s.day || '').substring(0, 3).toUpperCase();
+      const start = s.start || s.start_time || '';
+      const end = s.end || s.end_time || '';
+      return `${day} ${start}-${end}`;
+    }).join(', ');
   }
 }
