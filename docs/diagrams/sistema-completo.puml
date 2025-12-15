@@ -1,0 +1,358 @@
+@startuml
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+title SISTEMA DE GESTIÓN ACADÉMICA - DIAGRAMA COMPLETO DETALLADO
+footer Proyecto: academic-workflow | Backend: Laravel 12 | Frontend: Angular 20 | DB: SQLite
+
+top to bottom direction
+
+' ==========================================
+' ACTORES DEL SISTEMA
+' ==========================================
+actor "ESTUDIANTE\n(jperez)" as STUDENT #LightBlue
+actor "DOCENTE\n(docente)" as TEACHER #LightGreen
+actor "ADMINISTRADOR\n(admin)" as ADMIN #Orange
+
+' ==========================================
+' CAPA FRONTEND - ANGULAR
+' ==========================================
+package "FRONTEND - Angular 20\nUbicación: frontend/src/app/" #AliceBlue {
+    
+    package "Módulo Autenticación\nfrontend/src/app/auth/" #White {
+        component [Login] as FE_LOGIN
+        component [AuthService] as FE_AUTH_SVC
+    }
+    
+    package "Portal Estudiante\nfrontend/src/app/student/" #LightCyan {
+        component [Dashboard] as FE_STU_DASH
+        component [Offerings Catalog] as FE_OFFERINGS
+        component [My Enrollments] as FE_ENROLLMENTS
+        component [My Schedule] as FE_SCHEDULE
+        component [My Grades] as FE_GRADES
+        component [Exception Requests] as FE_EXCEPTIONS
+    }
+    
+    package "Portal Docente\nfrontend/src/app/teacher/" #LightGreen {
+        component [Teacher Dashboard] as FE_TCH_DASH
+        component [Grades List] as FE_TCH_GRADES
+        component [Grade Detail\n(Registrar Notas)] as FE_GRADE_DETAIL
+    }
+    
+    package "Portal Admin\nfrontend/src/app/admin/" #Wheat {
+        component [Admin Dashboard] as FE_ADM_DASH
+        component [Students CRUD] as FE_STUDENTS
+        component [Teachers CRUD] as FE_TEACHERS
+        component [Subjects CRUD] as FE_SUBJECTS
+        component [Classrooms CRUD] as FE_CLASSROOMS
+        component [Offerings CRUD] as FE_ADM_OFFERINGS
+        component [Periods CRUD] as FE_PERIODS
+        component [Grade Review List] as FE_REVIEW_LIST
+        component [Grade Review Detail\n(Aprobar/Rechazar/Publicar)] as FE_REVIEW_DETAIL
+        component [Reports] as FE_REPORTS
+        component [Audit Log] as FE_AUDIT
+    }
+    
+    package "Servicios API\nfrontend/src/app/core/services/" #LightYellow {
+        component [ApiService] as FE_API
+        component [StudentApiService] as FE_STU_API
+        component [AuthService] as FE_AUTH
+    }
+}
+
+' ==========================================
+' CAPA API - RUTAS
+' ==========================================
+package "API REST - Rutas\nUbicación: backend/routes/api.php" #LightGray {
+    
+    component [POST /api/v1/login\nPOST /api/v1/logout] as API_AUTH
+    
+    component [GET /api/v1/student/offerings\nPOST /api/v1/student/enroll/{id}\nDELETE /api/v1/student/unenroll/{id}\nPOST /api/v1/student/finalize\nGET /api/v1/student/enrollments\nGET /api/v1/student/schedule\nGET /api/v1/student/grades] as API_STUDENT
+    
+    component [GET /api/v1/grades/teacher-submissions\nGET /api/v1/grades/{id}\nPOST /api/v1/grades/{id}/items\nPOST /api/v1/grades/{id}/submit] as API_TEACHER
+    
+    component [GET /api/v1/grades/pending\nGET /api/v1/grades/submissions/{id}\nPOST /api/v1/grades/{id}/workflow/{action}] as API_ADMIN_GRADES
+    
+    component [CRUD /api/v1/students\nCRUD /api/v1/teachers\nCRUD /api/v1/subjects\nCRUD /api/v1/classrooms\nCRUD /api/v1/academic-offerings\nCRUD /api/v1/enrollment-periods] as API_ADMIN_CRUD
+}
+
+' ==========================================
+' CAPA BACKEND - CONTROLLERS
+' ==========================================
+package "BACKEND - Controllers\nUbicación: backend/app/Http/Controllers/" #LightGreen {
+    
+    component [AuthController.php\n- login()\n- logout()\n- me()] as CTRL_AUTH
+    
+    component [StudentEnrollmentController.php\n- offerings()\n- enroll()\n- unenroll()\n- finalizeEnrollment()\n- myEnrollments()\n- mySchedule()] as CTRL_STUDENT
+    
+    component [GradeController.php\n- teacherSubmissions()\n- show()\n- storeItems()\n- submitForReview()\n- pendingReview()\n- executeWorkflowAction()] as CTRL_GRADE
+    
+    component [StudentController.php] as CTRL_STU_CRUD
+    component [TeacherController.php] as CTRL_TCH_CRUD
+    component [SubjectController.php] as CTRL_SUB_CRUD
+    component [ClassroomController.php] as CTRL_CLASS_CRUD
+    component [AcademicOfferingController.php] as CTRL_OFF_CRUD
+    component [EnrollmentPeriodController.php] as CTRL_PERIOD_CRUD
+    component [ReportController.php] as CTRL_REPORT
+    component [AuditLogController.php] as CTRL_AUDIT
+}
+
+' ==========================================
+' CAPA SERVICIOS
+' ==========================================
+package "BACKEND - Services\nUbicación: backend/app/Services/" #Orange {
+    
+    component [AuthService.php\n- authenticate()\n- generateToken()] as SVC_AUTH
+    
+    component [EnrollmentService.php\n- canEnroll()\n- enroll()\n- unenroll()\n- isEnrollmentPeriodOpen()\n- finalizeEnrollment()] as SVC_ENROLL
+    
+    component [**WorkflowService.php**\n**MOTOR DE WORKFLOW**\n\n- startWorkflow()\n- executeTransition()\n- getAvailableTransitions()\n- canExecuteTransition()\n- getWorkflowHistory()] as SVC_WORKFLOW #Red
+}
+
+' ==========================================
+' MOTOR DE WORKFLOW - DETALLE
+' ==========================================
+package "MOTOR DE WORKFLOW - Detalle\nUbicación: backend/app/Models/Workflow*.php" #OrangeRed {
+    
+    component [WorkflowDefinition\nID: 1\nNombre: grade_submission\nEntidad: GradeSubmission] as WF_DEF
+    
+    package "Estados del Workflow" #White {
+        component [Estado 1: BORRADOR\nis_initial: true\nDocente edita notas] as STATE_1 #LightGray
+        component [Estado 2: ENVIADO\nPendiente revisión\nAdmin debe revisar] as STATE_2 #Yellow
+        component [Estado 3: APROBADO\nNotas validadas\nListo para publicar] as STATE_3 #LightGreen
+        component [Estado 4: RECHAZADO\nDocente debe corregir] as STATE_4 #Pink
+        component [Estado 5: PUBLICADO\nis_final: true\nVisible estudiantes] as STATE_5 #Green
+    }
+    
+    package "Transiciones Disponibles" #White {
+        component [submit\nBorrador -> Enviado\nRol: teacher] as TRANS_SUBMIT #Yellow
+        component [approve\nEnviado -> Aprobado\nRol: admin] as TRANS_APPROVE #LightGreen
+        component [reject\nEnviado -> Rechazado\nRol: admin] as TRANS_REJECT #Pink
+        component [resubmit\nRechazado -> Enviado\nRol: teacher] as TRANS_RESUBMIT #Yellow
+        component [publish\nAprobado -> Publicado\nRol: admin] as TRANS_PUBLISH #Green
+    }
+}
+
+' ==========================================
+' CAPA MODELOS - BASE DE DATOS
+' ==========================================
+package "BACKEND - Models\nUbicación: backend/app/Models/" #LightYellow {
+    
+    package "Usuarios y Roles" #White {
+        component [User.php] as MDL_USER
+        component [Student.php] as MDL_STUDENT
+        component [Teacher.php] as MDL_TEACHER
+        component [Administrator.php] as MDL_ADMIN
+    }
+    
+    package "Académico" #White {
+        component [Subject.php] as MDL_SUBJECT
+        component [Classroom.php] as MDL_CLASSROOM
+        component [AcademicOffering.php] as MDL_OFFERING
+        component [Enrollment.php] as MDL_ENROLLMENT
+        component [EnrollmentPeriod.php] as MDL_PERIOD
+    }
+    
+    package "Calificaciones" #White {
+        component [GradeStructure.php] as MDL_STRUCTURE
+        component [GradeItem.php] as MDL_ITEM
+        component [GradeSubmission.php] as MDL_SUBMISSION
+        component [StudentFinalGrade.php] as MDL_FINAL
+        component [GradeHistory.php] as MDL_HISTORY
+    }
+    
+    package "Workflow" #OrangeRed {
+        component [WorkflowDefinition.php] as MDL_WF_DEF
+        component [WorkflowState.php] as MDL_WF_STATE
+        component [WorkflowTransition.php] as MDL_WF_TRANS
+        component [WorkflowInstance.php] as MDL_WF_INST
+        component [WorkflowLog.php] as MDL_WF_LOG
+    }
+    
+    package "Otros" #White {
+        component [AuditLog.php] as MDL_AUDIT
+        component [Notification.php] as MDL_NOTIF
+        component [ExceptionRequest.php] as MDL_EXCEPTION
+    }
+}
+
+' ==========================================
+' BASE DE DATOS
+' ==========================================
+database "SQLite Database\nUbicación: backend/database/database.sqlite" #LightGray {
+    
+    storage "users" as DB_USERS
+    storage "students" as DB_STUDENTS
+    storage "teachers" as DB_TEACHERS
+    storage "subjects" as DB_SUBJECTS
+    storage "classrooms" as DB_CLASSROOMS
+    storage "academic_offerings" as DB_OFFERINGS
+    storage "enrollments" as DB_ENROLLMENTS
+    storage "enrollment_periods" as DB_PERIODS
+    storage "grade_structures" as DB_STRUCTURES
+    storage "grade_items" as DB_ITEMS
+    storage "grade_submissions" as DB_SUBMISSIONS
+    storage "student_final_grades" as DB_FINALS
+    storage "workflow_definitions" as DB_WF_DEF
+    storage "workflow_states" as DB_WF_STATES
+    storage "workflow_transitions" as DB_WF_TRANS
+    storage "workflow_instances" as DB_WF_INST
+    storage "workflow_logs" as DB_WF_LOGS
+    storage "audit_logs" as DB_AUDIT
+}
+
+' ==========================================
+' CONEXIONES - ACTORES A FRONTEND
+' ==========================================
+STUDENT --> FE_LOGIN
+STUDENT --> FE_STU_DASH
+STUDENT --> FE_OFFERINGS
+STUDENT --> FE_ENROLLMENTS
+STUDENT --> FE_SCHEDULE
+STUDENT --> FE_GRADES
+STUDENT --> FE_EXCEPTIONS
+
+TEACHER --> FE_LOGIN
+TEACHER --> FE_TCH_DASH
+TEACHER --> FE_TCH_GRADES
+TEACHER --> FE_GRADE_DETAIL
+
+ADMIN --> FE_LOGIN
+ADMIN --> FE_ADM_DASH
+ADMIN --> FE_STUDENTS
+ADMIN --> FE_TEACHERS
+ADMIN --> FE_SUBJECTS
+ADMIN --> FE_CLASSROOMS
+ADMIN --> FE_ADM_OFFERINGS
+ADMIN --> FE_PERIODS
+ADMIN --> FE_REVIEW_LIST
+ADMIN --> FE_REVIEW_DETAIL
+ADMIN --> FE_REPORTS
+ADMIN --> FE_AUDIT
+
+' ==========================================
+' CONEXIONES - FRONTEND A API
+' ==========================================
+FE_LOGIN --> API_AUTH
+FE_AUTH_SVC --> API_AUTH
+
+FE_OFFERINGS --> API_STUDENT
+FE_ENROLLMENTS --> API_STUDENT
+FE_SCHEDULE --> API_STUDENT
+FE_GRADES --> API_STUDENT
+
+FE_TCH_GRADES --> API_TEACHER
+FE_GRADE_DETAIL --> API_TEACHER
+
+FE_REVIEW_LIST --> API_ADMIN_GRADES
+FE_REVIEW_DETAIL --> API_ADMIN_GRADES
+
+FE_STUDENTS --> API_ADMIN_CRUD
+FE_TEACHERS --> API_ADMIN_CRUD
+FE_SUBJECTS --> API_ADMIN_CRUD
+FE_CLASSROOMS --> API_ADMIN_CRUD
+FE_ADM_OFFERINGS --> API_ADMIN_CRUD
+FE_PERIODS --> API_ADMIN_CRUD
+
+' ==========================================
+' CONEXIONES - API A CONTROLLERS
+' ==========================================
+API_AUTH --> CTRL_AUTH
+API_STUDENT --> CTRL_STUDENT
+API_TEACHER --> CTRL_GRADE
+API_ADMIN_GRADES --> CTRL_GRADE
+API_ADMIN_CRUD --> CTRL_STU_CRUD
+API_ADMIN_CRUD --> CTRL_TCH_CRUD
+API_ADMIN_CRUD --> CTRL_SUB_CRUD
+API_ADMIN_CRUD --> CTRL_CLASS_CRUD
+API_ADMIN_CRUD --> CTRL_OFF_CRUD
+API_ADMIN_CRUD --> CTRL_PERIOD_CRUD
+
+' ==========================================
+' CONEXIONES - CONTROLLERS A SERVICES
+' ==========================================
+CTRL_AUTH --> SVC_AUTH
+CTRL_STUDENT --> SVC_ENROLL
+CTRL_GRADE --> SVC_WORKFLOW
+
+' ==========================================
+' CONEXIONES - WORKFLOW ESTADOS
+' ==========================================
+STATE_1 --> TRANS_SUBMIT
+TRANS_SUBMIT --> STATE_2
+STATE_2 --> TRANS_APPROVE
+STATE_2 --> TRANS_REJECT
+TRANS_APPROVE --> STATE_3
+TRANS_REJECT --> STATE_4
+STATE_4 --> TRANS_RESUBMIT
+TRANS_RESUBMIT --> STATE_2
+STATE_3 --> TRANS_PUBLISH
+TRANS_PUBLISH --> STATE_5
+
+' ==========================================
+' CONEXIONES - SERVICE A MODELS
+' ==========================================
+SVC_WORKFLOW --> MDL_WF_DEF
+SVC_WORKFLOW --> MDL_WF_STATE
+SVC_WORKFLOW --> MDL_WF_TRANS
+SVC_WORKFLOW --> MDL_WF_INST
+SVC_WORKFLOW --> MDL_WF_LOG
+SVC_WORKFLOW --> MDL_SUBMISSION
+
+SVC_ENROLL --> MDL_ENROLLMENT
+SVC_ENROLL --> MDL_PERIOD
+SVC_ENROLL --> MDL_OFFERING
+SVC_ENROLL --> MDL_STUDENT
+
+' ==========================================
+' NOTAS EXPLICATIVAS
+' ==========================================
+note right of SVC_WORKFLOW
+    **MOTOR DE WORKFLOW**
+    
+    Este servicio implementa el patrón
+    State Machine para gestionar el
+    flujo de aprobación de calificaciones.
+    
+    **Flujo Principal:**
+    1. Docente envía notas (submit)
+    2. Admin revisa y aprueba/rechaza
+    3. Si rechaza, docente corrige
+    4. Si aprueba, admin publica
+    5. Estudiante ve notas publicadas
+    
+    **Tablas involucradas:**
+    - workflow_definitions
+    - workflow_states
+    - workflow_transitions
+    - workflow_instances
+    - workflow_logs
+end note
+
+note bottom of DB_WF_INST
+    workflow_instances guarda
+    el estado actual de cada
+    GradeSubmission en el workflow
+end note
+
+note right of FE_GRADE_DETAIL
+    El docente desde aquí:
+    1. Define estructura (parciales, trabajos)
+    2. Ingresa notas por estudiante
+    3. Sistema calcula nota final
+    4. Click "Enviar a Revisión"
+end note
+
+note right of FE_REVIEW_DETAIL
+    El admin desde aquí:
+    1. Ve notas enviadas
+    2. Revisa cada estudiante
+    3. Aprueba o Rechaza
+    4. Si aprueba, puede Publicar
+end note
+
+@enduml
